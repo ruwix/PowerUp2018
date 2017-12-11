@@ -18,6 +18,9 @@ import com.ctre.CANTalon.StatusFrameRate;
 
 import static java.lang.Math.abs;
 
+import edu.wpi.first.wpilibj.command.Subsystem;
+
+
 /**
  * The Drive subsystem. This subsystem is responsible for everything regarding
  * driving. It controls the four drive motors.
@@ -82,7 +85,7 @@ public class Drive extends Subsystem {
 	 *            the back right talon motor controller
 	 */
 	public Drive(CANTalon frontLeft, CANTalon frontRight, CANTalon backLeft, CANTalon backRight,
-			RobotState robotState) {
+	             RobotState robotState) {
 
 		this.robotState = robotState;
 
@@ -111,6 +114,9 @@ public class Drive extends Subsystem {
 		this.setBrakeMode(true);
 	}
 
+	public void initDefaultCommand(){
+	}
+	
 	@Override
 	public void stop() {
 		this.leftMaster.set(0);
@@ -130,11 +136,6 @@ public class Drive extends Subsystem {
 	/**
 	 * Move in with given speed forward or backwards while rotating with given speed
 	 */
-	public void setToNum(double num) {
-		this.leftMaster.set(num);
-		this.rightMaster.set(num);
-	}
-
 	public void move(Motion motion) {
 		double left = motion.getY() + motion.getRotation();
 		double right = motion.getY() - motion.getRotation();
@@ -167,7 +168,7 @@ public class Drive extends Subsystem {
 	public void updatePathFollower(double timestamp) {
 		RigidTransform2d robot_pose = robotState.getLatestFieldToVehicle().getValue();
 		Twist2d command = pathFollower.update(timestamp, robot_pose, robotState.getDistanceDriven(),
-				robotState.getPredictedVelocity().dx);
+		                                      robotState.getPredictedVelocity().dx);
 		if (!pathFollower.isFinished()) {
 			Kinematics.DriveVelocity setpoint = Kinematics.inverseKinematics(command);
 			updateVelocitySetpoint(setpoint.left, setpoint.right);
@@ -186,7 +187,7 @@ public class Drive extends Subsystem {
 		if (usesTalonVelocityControl(driveControlState)) {
 			final double max_desired = Math.max(Math.abs(left_inches_per_sec), Math.abs(right_inches_per_sec));
 			final double scale = max_desired > Constants.DRIVE_MAX_SETPOINT ? Constants.DRIVE_MAX_SETPOINT / max_desired
-					: 1.0;
+								 : 1.0;
 			leftMaster.set(inchesPerSecondToRpm(left_inches_per_sec * scale));
 			rightMaster.set(inchesPerSecondToRpm(right_inches_per_sec * scale));
 		} else {
@@ -223,14 +224,14 @@ public class Drive extends Subsystem {
 			configureTalonsForSpeedControl();
 			robotState.resetDistanceDriven();
 			pathFollower = new PathFollower(path, reversed, new PathFollower.Parameters(
-					new Lookahead(Constants.MIN_LOOK_AHEAD, Constants.MAX_LOOK_AHEAD, Constants.MIN_LOOK_AHEAD_SPEED,
-							Constants.MAX_LOOK_AHEAD_SPEED),
-					Constants.INERTIA_STEERING_GAIN, Constants.PATH_FOLLWOING_PROFILE_Kp,
-					Constants.PATH_FOLLWOING_PROFILE_Ki, Constants.PATH_FOLLWOING_PROFILE_Kv,
-					Constants.PATH_FOLLWOING_PROFILE_Kffv, Constants.PATH_FOLLWOING_PROFILE_Kffa,
-					Constants.PATH_FOLLOWING_MAX_VEL, Constants.PATH_FOLLOWING_MAX_ACCEL,
-					Constants.PATH_FOLLOING_GOAL_POS_TOLERANCE, Constants.PATH_FOLLOING_GOAL_VEL_TOLERANCE,
-					Constants.PATH_STOP_STEERING_DISTANCE));
+												new Lookahead(Constants.MIN_LOOK_AHEAD, Constants.MAX_LOOK_AHEAD, Constants.MIN_LOOK_AHEAD_SPEED,
+												              Constants.MAX_LOOK_AHEAD_SPEED),
+												Constants.INERTIA_STEERING_GAIN, Constants.PATH_FOLLWOING_PROFILE_Kp,
+												Constants.PATH_FOLLWOING_PROFILE_Ki, Constants.PATH_FOLLWOING_PROFILE_Kv,
+												Constants.PATH_FOLLWOING_PROFILE_Kffv, Constants.PATH_FOLLWOING_PROFILE_Kffa,
+												Constants.PATH_FOLLOWING_MAX_VEL, Constants.PATH_FOLLOWING_MAX_ACCEL,
+												Constants.PATH_FOLLOING_GOAL_POS_TOLERANCE, Constants.PATH_FOLLOING_GOAL_VEL_TOLERANCE,
+												Constants.PATH_STOP_STEERING_DISTANCE));
 			driveControlState = DriveControlState.PATH_FOLLOWING;
 			currentPath = path;
 		} else {
@@ -248,12 +249,12 @@ public class Drive extends Subsystem {
 			leftMaster.setNominalClosedLoopVoltage(12.0);
 			leftMaster.setProfile(VELOCITY_CONTROL_SLOT);
 			leftMaster.configNominalOutputVoltage(Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT,
-					-Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT);
+			                                      -Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT);
 			rightMaster.changeControlMode(CANTalon.TalonControlMode.Speed);
 			rightMaster.setNominalClosedLoopVoltage(12.0);
 			rightMaster.setProfile(VELOCITY_CONTROL_SLOT);
 			rightMaster.configNominalOutputVoltage(Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT,
-					-Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT);
+			                                       -Constants.DRIVE_HIGH_GEAR_NOMINAL_OUTPUT);
 			setBrakeMode(true);
 		}
 	}

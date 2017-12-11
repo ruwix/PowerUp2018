@@ -3,7 +3,7 @@ package org.ljrobotics.frc2018.subsystems;
 
 import org.ljrobotics.frc2018.loops.Looper;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-
+import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
  * This is the gyroscope subystem. It deals with getting gyroscope data.
@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 public class Gyroscope extends Subsystem {
 	public static Gyroscope instance;
 	private ADXRS450_Gyro gyro;
+
+	public void initDefaultCommand(){
+	}
+
 	public static Gyroscope getInstance() {
 		if (instance == null) {
 
