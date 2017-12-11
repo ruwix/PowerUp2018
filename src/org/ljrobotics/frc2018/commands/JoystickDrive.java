@@ -16,25 +16,20 @@ public class JoystickDrive extends Command {
 		this.requires(Drive.getInstance());
 	}
 
-	// Called just before this Command runs the first time
 	protected void initialize() {
 		this.joystick = new Joystick(Constants.JOYSTICK_DRIVE_ID);
 		this.multiplier=1;
 	}
 
-	// Called repeatedly when this Command is scheduled to run
 	protected void execute() {
 		double y = -this.joystick.getRawAxis(1)*this.multiplier;
 		double rotation = this.joystick.getRawAxis(2)*this.multiplier;
 		Drive.getInstance().move(new Motion(y,rotation));
 	}
 
-	// Called once after isFinished returns true
 	protected void end() {
 	}
 
-	// Called when another command which requires one or more of the same
-	// subsystems is scheduled to run
 	protected void interrupted() {
 	}
 
