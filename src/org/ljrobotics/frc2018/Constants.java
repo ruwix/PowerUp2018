@@ -99,7 +99,7 @@ public class Constants extends ConstantsBase{
 	public static double LOOPER_Dt = 0.005;
 	// -----------------------------------------------------------------------------------------------
 	// Android configuration
-
+	
 	public static int ANDROID_APP_TCP_PORT = 8254;
 	// -----------------------------------------------------------------------------------------------
 	// Motor configuration
@@ -127,6 +127,10 @@ public class Constants extends ConstantsBase{
 	// -----------------------------------------------------------------------------------------------
 	// File location
 
+	public static double DISTANCE_BETWEEN_INTAKE_SENSORS = 13;
+	// -----------------------------------------------------------------------------------------------
+	// Physical Stuff
+	
 	@Override
 	public String getFileLocation() {
 		// TODO Fill in file once a location is chosen
