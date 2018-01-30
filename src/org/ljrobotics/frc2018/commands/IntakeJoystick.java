@@ -22,7 +22,7 @@ public class IntakeJoystick extends Command {
 
 	protected void execute() {
 		double leftSpeed = -this.joystick.getRawAxis(1) * Constants.SUCK_SPEED;
-		double rightSpeed = -this.joystick.getRawAxis(5) * Constants.SUCK_SPEED;
+		double rightSpeed = -this.joystick.getRawAxis(3) * Constants.SUCK_SPEED;
 		SmartDashboard.putNumber("leftIntakeSpeed",leftSpeed);
 		SmartDashboard.putNumber("rightIntakeSpeed",rightSpeed);
 		Intake.getInstance().setWantedSpeed(leftSpeed,rightSpeed);
