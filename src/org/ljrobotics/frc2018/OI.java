@@ -1,5 +1,6 @@
 package org.ljrobotics.frc2018;
 
+import org.ljrobotics.frc2018.commands.GoodSucker;
 import org.ljrobotics.frc2018.commands.IntakeAlign;
 import org.ljrobotics.frc2018.commands.IntakeIdle;
 import org.ljrobotics.frc2018.commands.IntakeSpit;
@@ -9,6 +10,7 @@ import org.ljrobotics.frc2018.subsystems.Intake;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.InstantCommand;
 
 /**
@@ -35,26 +37,25 @@ public class OI {
 	private OI() {
 		this.stick = new Joystick(Constants.JOYSTICK_DRIVE_ID);
 		this.stick2 = new Joystick(Constants.JOYSTICK_OPERATOR_ID);
-		
+
 		JoystickButton suck = new JoystickButton(this.stick2, 1);
 		suck.whenPressed(new IntakeSuck());
 		suck.whenReleased(new IntakeIdle());
-		
+
 		JoystickButton spit = new JoystickButton(this.stick2, 4);
 		spit.whenPressed(new IntakeSpit());
 		spit.whenReleased(new IntakeIdle());
-		
+
 		JoystickButton align = new JoystickButton(this.stick2, 2);
-		Command intakeAlign = new IntakeAlign();
-		align.whenPressed(intakeAlign);
+		CommandGroup sucker = new GoodSucker();
+		align.whenPressed(sucker);
 		align.whenReleased(new InstantCommand() {
 			@Override
 			public void execute() {
-				intakeAlign.cancel();
-				Intake.getInstance().setWantedState(Intake.IntakeControlState.Idle);
+				sucker.cancel();
+//				new IntakeIdle();
 			}
 		});
-
 
 	}
 }
