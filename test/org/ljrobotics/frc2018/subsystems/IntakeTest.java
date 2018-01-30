@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Test;
+import org.ljrobotics.frc2018.Constants;
 import org.ljrobotics.lib.util.DummyReporter;
 import org.mockito.ArgumentCaptor;
 
@@ -38,10 +40,8 @@ public class IntakeTest {
 		right = mock(TalonSRX.class);
 		tension = mock(TalonSRX.class);
 
-		leftDistnace = mock(AnalogInput.class);
-		rightDistance = mock(AnalogInput.class);
-
-		intake = new Intake(left, right, tension, leftDistnace, rightDistance);
+		//Pass null for ___________
+		intake = new Intake(left, right, tension, null, null);
 	}
 
 	private void verifyTalons(ControlMode mode, double frontLeft, double frontRight, int timesCalled) {
@@ -53,6 +53,13 @@ public class IntakeTest {
 		verify(this.right, times(timesCalled)).set(eq(mode), captor.capture());
 		captures = captor.getAllValues();
 		assertEquals(frontRight, (double) captures.get(captures.size() - 1), 0.00001);
+	}
+
+	@Test
+	public void testTest() {
+		intake.setWantedState(Intake.IntakeControlState.Align);
+		intake.setAlignMotors();
+		verifyTalons(ControlMode.PercentOutput,Constants.ROTATION_SPEED, Constants.ROTATION_SPEED,1);
 	}
 
 }
