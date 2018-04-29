@@ -8,6 +8,7 @@ import org.ljrobotics.frc2018.loops.Looper;
 import org.ljrobotics.frc2018.state.Kinematics;
 import org.ljrobotics.frc2018.state.RobotState;
 import org.ljrobotics.lib.util.DriveSignal;
+import org.ljrobotics.lib.util.TimeDelayedBoolean;
 import org.ljrobotics.lib.util.control.Lookahead;
 import org.ljrobotics.lib.util.control.Path;
 import org.ljrobotics.lib.util.control.PathFollower;
@@ -26,7 +27,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -60,33 +63,34 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	public enum DriveControlState {
 		VELOCITY_SETPOINT, // Under PID velocity control
 		PATH_FOLLOWING, // Following a path
-		TURNING, //turnToAngle
+		TURNING, // turnToAngle
 		OPEN_LOOP// Used to drive control
 	}
 
 	public static final int VELOCITY_CONTROL_SLOT = 0;
-	
-	//Sensors
+
+	// Sensors
 	private Gyro gyro;
-	
+	private Accelerometer accel;
+	private TimeDelayedBoolean timebool;
 	private Rotation2d gyroZero;
 
 	// The drive loop definition
 	private class DriveLoop implements Loop {
 
-		public void onStart( double timestamp ) {
+		public void onStart(double timestamp) {
 
 		}
 
-		public void onLoop( double timestamp ) {
-			switch( driveControlState  ) {
+		public void onLoop(double timestamp) {
+			switch (driveControlState) {
 			case VELOCITY_SETPOINT:
-				updateTalonOutputs( timestamp );
+				updateTalonOutputs(timestamp);
 				break;
 			case PATH_FOLLOWING:
-				//TODO add a write to CVS file function
-				updatePathFollower( timestamp );
-				updateTalonOutputs( timestamp );
+				// TODO add a write to CVS file function
+				updatePathFollower(timestamp);
+				updateTalonOutputs(timestamp);
 				break;
 			case TURNING:
 				updateTurn(timestamp);
@@ -95,12 +99,13 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 			}
 		}
-		
-		public void onStop( double timestamp ) {
-			
+
+		public void onStop(double timestamp) {
+
 		}
 
 	}
+
 	// The local drive loop
 	private DriveLoop driveLoop = new DriveLoop();
 
@@ -118,21 +123,21 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	// Controllers
 	private PathFollower pathFollower;
 	private RobotState robotState;
-	
+
 	private SynchronousPIDF leftPID;
 	private SynchronousPIDF rightPID;
 	private SynchronousPIDF speedPID;
-	
+
 	private boolean hasUpdatedPID;
 
 	// Hardware States
 	private NeutralMode isBrakeMode;
 
 	private Path currentPath;
-	
+
 	private long overCurrentTime;
 	private boolean isOverCurrent;
-	
+
 	/**
 	 * Creates a new Drive Subsystem from that controls the given motor controllers.
 	 *
@@ -145,11 +150,14 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	 * @param slaveRight
 	 *            the back right talon motor controller
 	 */
-	public Drive(TalonSRX masterLeft, TalonSRX masterRight, TalonSRX slaveLeft, TalonSRX slaveRight, RobotState robotState,
-			Gyro gyro) {
+	public Drive(TalonSRX masterLeft, TalonSRX masterRight, TalonSRX slaveLeft, TalonSRX slaveRight,
+			RobotState robotState, Gyro gyro) {
 
 		this.robotState = robotState;
 		this.gyro = gyro;
+		this.accel = new BuiltInAccelerometer();
+		this.accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
+		this.timebool = new TimeDelayedBoolean();
 
 		this.leftMaster = masterLeft;
 		this.rightMaster = masterRight;
@@ -168,47 +176,44 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		rightSlave.setInverted(true);
 		leftMaster.setInverted(true);
 		rightMaster.setInverted(true);
-		
+
 		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
 		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-		
+
 		leftMaster.configOpenloopRamp(0.375, 0);
 		rightMaster.configOpenloopRamp(0.375, 0);
-		
-		leftPID = new SynchronousPIDF(Constants.DRIVE_Kp, Constants.DRIVE_Ki, Constants.DRIVE_Kd,
-				Constants.DRIVE_Kf);
-		
-		rightPID = new SynchronousPIDF(Constants.DRIVE_Kp, Constants.DRIVE_Ki, Constants.DRIVE_Kd,
-				Constants.DRIVE_Kf);
-		
-//		leftPID.setOutputRange(-0.5, 0.5);
-//		rightPID.setOutputRange(-0.5, 0.5);
-		
-		speedPID = new SynchronousPIDF(Constants.TURN_Kp, Constants.TURN_Ki, 
-    			Constants.TURN_Kd, Constants.TURN_Kf);
+
+		leftPID = new SynchronousPIDF(Constants.DRIVE_Kp, Constants.DRIVE_Ki, Constants.DRIVE_Kd, Constants.DRIVE_Kf);
+
+		rightPID = new SynchronousPIDF(Constants.DRIVE_Kp, Constants.DRIVE_Ki, Constants.DRIVE_Kd, Constants.DRIVE_Kf);
+
+		leftPID.setOutputRange(-0.5, 0.5);
+		rightPID.setOutputRange(-0.5, 0.5);
+
+		speedPID = new SynchronousPIDF(Constants.TURN_Kp, Constants.TURN_Ki, Constants.TURN_Kd, Constants.TURN_Kf);
 		speedPID.setContinuous();
 		speedPID.setInputRange(-180D, 180D);
-		//TODO Add constant for output range
+		// TODO Add constant for output range
 		speedPID.setOutputRange(-Constants.TURN_SPEED, Constants.TURN_SPEED);
-		
+
 		this.driveControlState = DriveControlState.OPEN_LOOP;
 
 		this.isBrakeMode = NeutralMode.Coast;
 		this.setNeutralMode(NeutralMode.Brake);
-		
+
 		this.gyroZero = Rotation2d.fromDegrees(0);
 		this.speedLimit = 1;
-		
+
 		this.overCurrentTime = System.currentTimeMillis();
 		this.isOverCurrent = false;
 	}
-	
+
 	public boolean isOverCurrent() {
-		if(this.isOverCurrent) {
+		if (this.isOverCurrent) {
 			double leftCurrent = this.leftMaster.getOutputCurrent();
 			double rightCurrent = this.leftMaster.getOutputCurrent();
-			if(Math.max(leftCurrent, rightCurrent) > Constants.DRIVE_MAX_CURRENT) {
-				if(System.currentTimeMillis() - this.overCurrentTime > Constants.DRIVE_MAX_CURRENT_TIME) {
+			if (Math.max(leftCurrent, rightCurrent) > Constants.DRIVE_MAX_CURRENT) {
+				if (System.currentTimeMillis() - this.overCurrentTime > Constants.DRIVE_MAX_CURRENT_TIME) {
 					return true;
 				}
 			} else {
@@ -217,14 +222,14 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		} else {
 			double leftCurrent = this.leftMaster.getOutputCurrent();
 			double rightCurrent = this.leftMaster.getOutputCurrent();
-			if(Math.max(leftCurrent, rightCurrent) > Constants.DRIVE_MAX_CURRENT) {
+			if (Math.max(leftCurrent, rightCurrent) > Constants.DRIVE_MAX_CURRENT) {
 				this.isOverCurrent = true;
 				this.overCurrentTime = System.currentTimeMillis();
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void stop() {
 		this.leftMaster.set(ControlMode.PercentOutput, 0);
@@ -243,14 +248,14 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 	public void setOpenLoop(DriveSignal driveSignal) {
 		if (this.driveControlState != DriveControlState.OPEN_LOOP) {
-            this.leftMaster.configNominalOutputForward(0, 0);
-            this.rightMaster.configNominalOutputForward(0, 0);
+			this.leftMaster.configNominalOutputForward(0, 0);
+			this.rightMaster.configNominalOutputForward(0, 0);
 
-            this.leftMaster.configNominalOutputReverse(0, 0);
-            this.rightMaster.configNominalOutputReverse(0, 0);
-            this.driveControlState = DriveControlState.OPEN_LOOP;
-            setNeutralMode(NeutralMode.Coast);
-        }
+			this.leftMaster.configNominalOutputReverse(0, 0);
+			this.rightMaster.configNominalOutputReverse(0, 0);
+			this.driveControlState = DriveControlState.OPEN_LOOP;
+			setNeutralMode(NeutralMode.Coast);
+		}
 		double left = driveSignal.getLeft();
 		double right = driveSignal.getRight();
 		left = Math.min(Math.max(left, -1), 1);
@@ -258,45 +263,48 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		this.leftMaster.set(ControlMode.PercentOutput, left * this.speedLimit);
 		this.rightMaster.set(ControlMode.PercentOutput, right * this.speedLimit);
 	}
-	
+
 	public void setSpeedLimit(double limit) {
 		this.speedLimit = limit;
 	}
 
 	public synchronized void setTurnAngle(double angle) {
 		this.driveControlState = DriveControlState.TURNING;
-		
+
 		speedPID.reset();
 		speedPID.setSetpoint(angle);
 		this.hasUpdatedPID = false;
 	}
-	
+
 	public SynchronousPIDF getSpeedPID() {
 		return speedPID;
 	}
-	
+
 	private void updateTurn(double timestamp) {
 		double dt = timestamp - this.lastTimeStamp;
 		this.lastTimeStamp = timestamp;
 		double currentAngle = LazyGyroscope.getInstance().getAngle();
 		double speed = speedPID.calculate(currentAngle, dt);
-		
+
 		leftMaster.set(ControlMode.PercentOutput, speed);
 		rightMaster.set(ControlMode.PercentOutput, -speed);
 		this.hasUpdatedPID = true;
 		// setVelocitySetpoint(-speed, speed);
-		
+
 	}
-	
+
 	public boolean isDoneWithTurn() {
-		// boolean toReturn = Math.abs(speedPID.getError()) <= Constants.TURN_DEGREE_TOLERANCE && LazyGyroscope.getInstance().getRate()<=Constants.LOW_VELOCITY_THRESHOLD;
-		boolean lessThanSpeed = Math.abs(speedPID.getError()) <= Constants.TURN_DEGREE_TOLERANCE ;
-//		boolean lessThanAngle = Math.abs(speedPID.getSetpoint() - this.getGyroAngle().getDegrees()) <= Constants.TURN_DEGREE_TOLERANCE;
+		// boolean toReturn = Math.abs(speedPID.getError()) <=
+		// Constants.TURN_DEGREE_TOLERANCE &&
+		// LazyGyroscope.getInstance().getRate()<=Constants.LOW_VELOCITY_THRESHOLD;
+		boolean lessThanSpeed = Math.abs(speedPID.getError()) <= Constants.TURN_DEGREE_TOLERANCE;
+		// boolean lessThanAngle = Math.abs(speedPID.getSetpoint() -
+		// this.getGyroAngle().getDegrees()) <= Constants.TURN_DEGREE_TOLERANCE;
 		boolean toReturn = lessThanSpeed && this.hasUpdatedPID;
-	    System.out.println("Turning with error " + speedPID.getError());
+		System.out.println("Turning with error " + speedPID.getError());
 		return (toReturn);
 	}
-	
+
 	/**
 	 * Start up velocity mode. This sets the drive train in high gear as well.
 	 *
@@ -308,19 +316,19 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		driveControlState = DriveControlState.VELOCITY_SETPOINT;
 		updateVelocitySetpoint(left_inches_per_sec, right_inches_per_sec);
 	}
-	
+
 	public synchronized void updateTalonOutputs(double timestamp) {
 		double dt = timestamp - this.lastTimeStamp;
 		this.lastTimeStamp = timestamp;
-		
+
 		double leftVel = this.getLeftVelocityInchesPerSec();
 		double rightVel = this.getRightVelocityInchesPerSec();
 		double left = this.leftPID.calculate(leftVel, dt);
 		double right = this.rightPID.calculate(rightVel, dt);
-		
+
 		SmartDashboard.putNumber("left output", left);
 		SmartDashboard.putNumber("right output", right);
-		
+
 		this.leftMaster.set(ControlMode.PercentOutput, left);
 		this.rightMaster.set(ControlMode.PercentOutput, right);
 	}
@@ -336,8 +344,8 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 			Twist2d command = pathFollower.update(timestamp, robot_pose, robotState.getDistanceDriven(),
 					robotState.getPredictedVelocity().dx);
 			if (!pathFollower.isFinished()) {
-//				command = new Twist2d(command.dx, command.dy, command.dtheta*1.5);
-//				System.out.println(command);
+				// command = new Twist2d(command.dx, command.dy, command.dtheta*1.5);
+				// System.out.println(command);
 				SmartDashboard.putNumber("Turn Command", command.dtheta);
 				SmartDashboard.putNumber("Move Command", command.dx);
 				Kinematics.DriveVelocity setpoint = Kinematics.inverseKinematics(command);
@@ -348,7 +356,7 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 	}
 
 	/**
@@ -364,7 +372,8 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 					: 1.0;
 			SmartDashboard.putNumber("Left Wanted Vel", left_inches_per_sec * scale);
 			SmartDashboard.putNumber("Right Wanted Vel", right_inches_per_sec * scale);
-//			System.out.println(left_inches_per_sec + ", " + right_inches_per_sec + " : " + scale);
+			// System.out.println(left_inches_per_sec + ", " + right_inches_per_sec + " : "
+			// + scale);
 			leftPID.setSetpoint(left_inches_per_sec * scale);
 			rightPID.setSetpoint(right_inches_per_sec * scale);
 		} else {
@@ -375,7 +384,7 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	}
 
 	public synchronized boolean isDoneWithPath() {
-		if(isOverCurrent()) {
+		if (isOverCurrent()) {
 			return true;
 		}
 		if (driveControlState == DriveControlState.PATH_FOLLOWING && pathFollower != null) {
@@ -417,12 +426,12 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	private void configureTalonsForSpeedControl() {
 		if (!usesTalonVelocityControl(driveControlState)) {
 			// We entered a velocity control state.
-//			leftMaster.configNominalOutputForward(1, 0);
-//			leftMaster.configNominalOutputReverse(-1, 0);
-//			leftMaster.selectProfileSlot(VELOCITY_CONTROL_SLOT, 0);
-//			rightMaster.configNominalOutputForward(1, 0);
-//			rightMaster.configNominalOutputReverse(-1, 0);
-//			rightMaster.selectProfileSlot(VELOCITY_CONTROL_SLOT, 0);
+			// leftMaster.configNominalOutputForward(1, 0);
+			// leftMaster.configNominalOutputReverse(-1, 0);
+			// leftMaster.selectProfileSlot(VELOCITY_CONTROL_SLOT, 0);
+			// rightMaster.configNominalOutputForward(1, 0);
+			// rightMaster.configNominalOutputReverse(-1, 0);
+			// rightMaster.selectProfileSlot(VELOCITY_CONTROL_SLOT, 0);
 			setNeutralMode(NeutralMode.Brake);
 		}
 	}
@@ -457,10 +466,12 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 		SmartDashboard.putNumber("Left Position", this.getLeftDistanceInches());
 		SmartDashboard.putNumber("Right Position", this.getRightDistanceInches());
-		
+
 		SmartDashboard.putNumber("Current", this.leftMaster.getOutputCurrent());
 
 		SmartDashboard.putNumber("Gyro Angle", this.getGyroAngle().getDegrees());
+		SmartDashboard.putBoolean("X Tilted", isTilted());
+
 	}
 
 	@Override
@@ -478,15 +489,17 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 	@Override
 	protected void initDefaultCommand() {
-		if(Constants.USE_TANK_DRIVE) {
+		if (Constants.USE_TANK_DRIVE) {
+			System.out.println("NOT TANKING");
 			this.setDefaultCommand(new TankJoystickDrive());
 		} else {
+			System.out.println("TANKING");
 			this.setDefaultCommand(new CheesyJoystickDrive());
 		}
 	}
 
 	public Rotation2d getGyroAngle() {
-		double gyroAngle = Constants.GYRO_MODIFIER*this.gyro.getAngle();
+		double gyroAngle = Constants.GYRO_MODIFIER * this.gyro.getAngle();
 		return Rotation2d.fromDegrees(gyroAngle).rotateBy(this.gyroZero.inverse());
 	}
 
@@ -508,5 +521,12 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 	public void setGyroAngle(Rotation2d rotation) {
 		this.gyroZero = rotation;
+	}
+	
+	public boolean isTilted() {
+		double angle = Math.atan2(this.accel.getZ(), this.accel.getX());
+		boolean isTilted = Math.toRadians(angle) > Constants.DRIVE_TILT_TRESHOLD_BACKWARD
+				|| Math.toRadians(angle) < Constants.DRIVE_TILT_TRESHOLD_BACKWARD;
+		return this.timebool.update(isTilted, Constants.DRIVE_TILT_TIME_THRESHOLD);
 	}
 }
