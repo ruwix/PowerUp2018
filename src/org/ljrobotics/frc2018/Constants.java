@@ -76,6 +76,13 @@ public class Constants extends ConstantsBase {
 	
 	public static int DRIVE_MAX_CURRENT = 10;
 	public static int DRIVE_MAX_CURRENT_TIME = 500;
+	
+	//Dealing with robot tilt
+	public static double DRIVE_TILT_TRESHOLD_FORWARD = 136;
+	public static double DRIVE_TILT_TRESHOLD_BACKWARD = 44;
+	public static double DRIVE_TILT_TIME_THRESHOLD = 0.3;
+
+			
 	// -----------------------------------------------------------------------------------------------
 	// Intake
 	public static double SUCK_SPEED = 1;
