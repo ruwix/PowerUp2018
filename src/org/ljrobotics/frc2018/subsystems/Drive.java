@@ -16,6 +16,7 @@ import org.ljrobotics.lib.util.control.SynchronousPIDF;
 import org.ljrobotics.lib.util.drivers.CANTalonFactory;
 import org.ljrobotics.lib.util.drivers.LazyCANTalon;
 import org.ljrobotics.lib.util.drivers.LazyGyroscope;
+import org.ljrobotics.lib.util.drivers.LazyAccelerometer;
 import org.ljrobotics.lib.util.math.RigidTransform2d;
 import org.ljrobotics.lib.util.math.Rotation2d;
 import org.ljrobotics.lib.util.math.Twist2d;
@@ -53,8 +54,9 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 			RobotState robotState = RobotState.getInstance();
 			LazyGyroscope gyro = LazyGyroscope.getInstance();
+			LazyAccelerometer accel = LazyAccelerometer.getInstance();
 
-			instance = new Drive(masterLeft, masterRight, slaveLeft, slaveRight, robotState, gyro);
+			instance = new Drive(masterLeft, masterRight, slaveLeft, slaveRight, robotState, gyro, accel);
 		}
 		return instance;
 	}
@@ -71,9 +73,14 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 	// Sensors
 	private Gyro gyro;
-	private Accelerometer accel;
-	private TimeDelayedBoolean timebool;
+	private LazyAccelerometer accel;
+	private TimeDelayedBoolean tiltStatus;
 	private Rotation2d gyroZero;
+
+	// The robot's tilt status
+	public enum TiltDirection {
+		FORWARD, BACKWARD, NEUTRAL
+	}
 
 	// The drive loop definition
 	private class DriveLoop implements Loop {
@@ -151,13 +158,13 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	 *            the back right talon motor controller
 	 */
 	public Drive(TalonSRX masterLeft, TalonSRX masterRight, TalonSRX slaveLeft, TalonSRX slaveRight,
-			RobotState robotState, Gyro gyro) {
+			RobotState robotState, Gyro gyro, LazyAccelerometer accel) {
 
 		this.robotState = robotState;
 		this.gyro = gyro;
-		this.accel = new BuiltInAccelerometer();
-		this.accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		this.timebool = new TimeDelayedBoolean();
+		this.accel = accel;
+
+		this.tiltStatus = new TimeDelayedBoolean();
 
 		this.leftMaster = masterLeft;
 		this.rightMaster = masterRight;
@@ -471,6 +478,7 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 		SmartDashboard.putNumber("Gyro Angle", this.getGyroAngle().getDegrees());
 		SmartDashboard.putBoolean("X Tilted", isTilted());
+		SmartDashboard.putNumber("X Angle", accel.getPitch());
 
 	}
 
@@ -522,11 +530,19 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	public void setGyroAngle(Rotation2d rotation) {
 		this.gyroZero = rotation;
 	}
-	
+
 	public boolean isTilted() {
-		double angle = Math.atan2(this.accel.getZ(), this.accel.getX());
-		boolean isTilted = Math.toRadians(angle) > Constants.DRIVE_TILT_TRESHOLD_BACKWARD
-				|| Math.toRadians(angle) < Constants.DRIVE_TILT_TRESHOLD_BACKWARD;
-		return this.timebool.update(isTilted, Constants.DRIVE_TILT_TIME_THRESHOLD);
+		boolean isTilted = accel.getPitch() > Constants.DRIVE_TILT_TRESHOLD_FORWARD
+				|| accel.getPitch() < Constants.DRIVE_TILT_TRESHOLD_BACKWARD;
+		return this.tiltStatus.update(isTilted, Constants.DRIVE_TILT_TIME_THRESHOLD);
+	}
+
+	public TiltDirection getTiltDirection() {
+		if (accel.getPitch() < Constants.DRIVE_TILT_TRESHOLD_BACKWARD) {
+			return TiltDirection.BACKWARD;
+		} else if (accel.getPitch() > Constants.DRIVE_TILT_TRESHOLD_FORWARD) {
+			return TiltDirection.FORWARD;
+		}
+		return TiltDirection.NEUTRAL;
 	}
 }
