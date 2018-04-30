@@ -25,14 +25,28 @@ public class CheesyJoystickDrive extends Command {
 	}
 
 	protected void execute() {
-		double power = this.joystick.getRawAxis(1)*this.multiplier;
+		if (Drive.getInstance().isTilted()) {
+			switch (Drive.getInstance().getTiltDirection()) {
+			case BACKWARD:
+				Drive.getInstance().setOpenLoop(new DriveSignal(Constants.DRIVE_TILT_FORWARD_FIX_SPEED,
+						Constants.DRIVE_TILT_FORWARD_FIX_SPEED));
+				break;
+			case FORWARD:
+				Drive.getInstance().setOpenLoop(new DriveSignal(Constants.DRIVE_TILT_BACKWARD_FIX_SPEED,
+						Constants.DRIVE_TILT_BACKWARD_FIX_SPEED));
+				break;
+			default:
+			}
+			return;
+		}
+		double power = this.joystick.getRawAxis(1) * this.multiplier;
 		power = (Math.abs(power) < Constants.JOYSTICK_POWER_DEADBAND) ? 0 : power;
 		power = Math.pow(power, Constants.JOYSTICK_POWER_POWER);
-		double wheel = -this.joystick.getRawAxis(Constants.JOYSTICK_ROTATION_AXIS)*this.multiplier;
+		double wheel = -this.joystick.getRawAxis(Constants.JOYSTICK_ROTATION_AXIS) * this.multiplier;
 		wheel = (Math.abs(wheel) < Constants.JOYSTICK_WHEEL_DEADBAND) ? 0 : wheel;
 		DriveSignal driveSignal;
 		// The rightmost trigger
-		if( this.joystick.getRawButton(Constants.QUICKTURN_BUTTON) ) {
+		if (this.joystick.getRawButton(Constants.QUICKTURN_BUTTON)) {
 			driveSignal = CheesyDriveHelper.getInstance().cheesyDrive(power, wheel, true, false);
 		} else {
 			driveSignal = CheesyDriveHelper.getInstance().cheesyDrive(power, wheel, false, false);
@@ -46,7 +60,7 @@ public class CheesyJoystickDrive extends Command {
 	protected void interrupted() {
 	}
 
-	protected boolean isFinished(){
+	protected boolean isFinished() {
 		return false;
 	}
 
