@@ -67,49 +67,50 @@ public class Constants extends ConstantsBase {
 	public static int DRIVE_ENCODER_TICKS_PER_ROTATION_RIGHT = 248;
 	public static int DRIVE_ENCODER_TICKS_PER_ROTATION_LEFT = -1470;
 	// RIGHT FOR 2018: 141.895/36.25*360, Left for 2018: -34.558/36.25*-1440
-	// RIGHT FOR 2017: 32/39*303    , left for 2017: 24.488/25*-1440
+	// RIGHT FOR 2017: 32/39*303 , left for 2017: 24.488/25*-1440
 
 	public static double DRIVE_Kp = 0.00005;
 	public static double DRIVE_Ki = 0.0000001;
 	public static double DRIVE_Kd = 0;
 	public static double DRIVE_Kf = 0.035;
-	
+
 	public static int DRIVE_MAX_CURRENT = 10;
 	public static int DRIVE_MAX_CURRENT_TIME = 500;
-	
-	//Dealing with robot tilt
+
+	// Dealing with robot tilt
 	public static double DRIVE_TILT_TRESHOLD_FORWARD = 136;
 	public static double DRIVE_TILT_TRESHOLD_BACKWARD = 44;
 	public static double DRIVE_TILT_TIME_THRESHOLD = 0.3;
+	public static double DRIVE_TILT_FORWARD_FIX_SPEED = 1;
+	public static double DRIVE_TILT_BACKWARD_FIX_SPEED = -1;
 
-			
 	// -----------------------------------------------------------------------------------------------
 	// Intake
 	public static double SUCK_SPEED = 1;
 	public static double SPIT_SPEED = -1;
 	public static double IN_VOLTAGE_THRESH = 1.8;
 
-	//turn pid
+	// turn pid
 	public static double TURN_Kp = 0.006;
 	public static double TURN_Ki = 0.003;
 	public static double TURN_Kd = 0.0001;
 	public static double TURN_Kf = 0D;
-	public static int LEFT_INTAKE_MOTOR_ID = 29; //29
-	public static int RIGHT_INTAKE_MOTOR_ID = 10; //28
+	public static int LEFT_INTAKE_MOTOR_ID = 29; // 29
+	public static int RIGHT_INTAKE_MOTOR_ID = 10; // 28
 	public static int TENSION_INTAKE_MOTOR_ID = 20;
 
-	//turn constants
-	//degrees
+	// turn constants
+	// degrees
 	public static double TURN_DEGREE_TOLERANCE = 5D;
-	//gyroscope is turning under some velocity (in degrees / second)
+	// gyroscope is turning under some velocity (in degrees / second)
 	public static double LOW_VELOCITY_THRESHOLD = 1;
 	public static int MAX_SUCK_CURRENT = 20;
 	public static int NOMINAL_SUCK_CURRENT = 10;
 	public static int MAX_SUCK_CURRENT_TIME = 1000;
-	
+
 	public static int INTAKE_LEFT_DISTANCE_PORT = 0;
 	public static int INTAKE_RIGHT_DISTANCE_PORT = 1;
-	
+
 	// Speed
 	public static double TURN_SPEED = 0.5;
 	// -----------------------------------------------------------------------------------------------
@@ -134,20 +135,20 @@ public class Constants extends ConstantsBase {
 
 	public static int JOYSTICK_DRIVE_ID = 0x0;
 	public static int JOYSTICK_OPERATOR_ID = 1;
-	public static final int SLAVE_LEFT_MOTOR_ID =  28;
+	public static final int SLAVE_LEFT_MOTOR_ID = 28;
 	public static final int SLAVE_RIGHT_MOTOR_ID = 12;
-	public static final int MASTER_LEFT_MOTOR_ID =   23;
-	public static final int MASTER_RIGHT_MOTOR_ID =  22;
+	public static final int MASTER_LEFT_MOTOR_ID = 23;
+	public static final int MASTER_RIGHT_MOTOR_ID = 22;
 	// -----------------------------------------------------------------------------------------------
 	// General
 	public static double EQUALS_EPSILON = 0.00001;
 
 	// -----------------------------------------------------------------------------------------------
-	//Camera position and rotation
+	// Camera position and rotation
 
-	public static double CAMERA_X_OFFSET = 0; //From wheelbase center, looking down
-	public static double CAMERA_Y_OFFSET = 0; //From wheelbase center, looking down
-	public static double CAMERA_YAW = 0; //In degrees, + is anti-clockwise viewed from above
+	public static double CAMERA_X_OFFSET = 0; // From wheelbase center, looking down
+	public static double CAMERA_Y_OFFSET = 0; // From wheelbase center, looking down
+	public static double CAMERA_YAW = 0; // In degrees, + is anti-clockwise viewed from above
 
 	public static double MAX_TRACKER_DISTANCE = 18;
 	public static double MAX_GOAL_TRACK_AGE = 1;
@@ -155,7 +156,7 @@ public class Constants extends ConstantsBase {
 	// -----------------------------------------------------------------------------------------------
 	// File location
 
-	//Arm
+	// Arm
 	public static double MIN_ARM_SPEED = -1;
 	public static double MAX_ARM_SPEED = 0;
 	public static int MAX_ARM_CURRENT = 20;
@@ -172,9 +173,9 @@ public class Constants extends ConstantsBase {
 	public static double ARM_GEAR_RATIO = 15D / 48D;
 	public static double ARM_INVERSE_GEAR_RATIO = 48D / 15D;
 
-	public static double ARM_Kp = 0.005; //0.00005
-	public static double ARM_Ki = 0.0001;//0.000002
-	public static double ARM_Kd = 0; //0.00009
+	public static double ARM_Kp = 0.005; // 0.00005
+	public static double ARM_Ki = 0.0001;// 0.000002
+	public static double ARM_Kd = 0; // 0.00009
 	public static double ARM_Kf = 0;
 
 	public static double ARM_STOWED_DEGREES = 45;
@@ -189,36 +190,19 @@ public class Constants extends ConstantsBase {
 	}
 
 	/*
-	{                                                                                                                                                     
-        "DRIVE_ENCODER_TICKS_PER_ROTATION_RIGHT":1400,
-        "DRIVE_ENCODER_TICKS_PER_ROTATION_LEFT":-1400,
-        "GYRO_MODIFIER":-1,                           
-        "DRIVE_Kf": 0.00875,
-        "DRIVE_Kp": 0.01,   
-        "DRIVE_Ki": 0,   
-        "DRIVE_Kd": 0.000,
-        "PATH_FOLLOWING_GOAL_POS_TOLERANCE": 3,
-        "PATH_FOLLOWING_MAX_ACCEL": 60         
-        "PATH_FOLLOWING_MAX_VEL": 80, 
-        "PATH_FOLLOWING_PROFILE_Kffa": 0.08,
-        "TRACK_SCRUB_FACTOR": 1.0,          
-        "MIN_LOOK_AHEAD_SPEED": 12,
-        "PATH_FOLLOWING_PROFILE_Kp": 1.5,
-        "PATH_FOLLOWING_PROFILE_Ki": 0.001,
-        "MIN_LOOK_AHEAD": 15,              
-        "PATH_FOLLOWING_PROFILE_Kv": 0.075,
-        "SEGMENT_COMPLETION_TOLERANCE": 4, 
-        "JOYSTICK_ROTATION_AXIS": 2,      
-        "USE_TANK_DRIVE": false,    
-        "QUICKTURN_BUTTON": 5,  
-        "JOYSTICK_POWER_POWER": 1,
-	"ARM_Kp": 0.007,
-	"ARM_Ki": 0.0022,
-	"ARM_Kd": 0.002,
-	"TURN_Kp": 0.008,
-	"TURN_Ki": 0.005,
-	"TURN_Kd": 0.002,
-	"DRIVE_MAX_CURRENT": 20
-
-	}        */
+	 * { "DRIVE_ENCODER_TICKS_PER_ROTATION_RIGHT":1400,
+	 * "DRIVE_ENCODER_TICKS_PER_ROTATION_LEFT":-1400, "GYRO_MODIFIER":-1,
+	 * "DRIVE_Kf": 0.00875, "DRIVE_Kp": 0.01, "DRIVE_Ki": 0, "DRIVE_Kd": 0.000,
+	 * "PATH_FOLLOWING_GOAL_POS_TOLERANCE": 3, "PATH_FOLLOWING_MAX_ACCEL": 60
+	 * "PATH_FOLLOWING_MAX_VEL": 80, "PATH_FOLLOWING_PROFILE_Kffa": 0.08,
+	 * "TRACK_SCRUB_FACTOR": 1.0, "MIN_LOOK_AHEAD_SPEED": 12,
+	 * "PATH_FOLLOWING_PROFILE_Kp": 1.5, "PATH_FOLLOWING_PROFILE_Ki": 0.001,
+	 * "MIN_LOOK_AHEAD": 15, "PATH_FOLLOWING_PROFILE_Kv": 0.075,
+	 * "SEGMENT_COMPLETION_TOLERANCE": 4, "JOYSTICK_ROTATION_AXIS": 2,
+	 * "USE_TANK_DRIVE": false, "QUICKTURN_BUTTON": 5, "JOYSTICK_POWER_POWER": 1,
+	 * "ARM_Kp": 0.007, "ARM_Ki": 0.0022, "ARM_Kd": 0.002, "TURN_Kp": 0.008,
+	 * "TURN_Ki": 0.005, "TURN_Kd": 0.002, "DRIVE_MAX_CURRENT": 20
+	 * 
+	 * }
+	 */
 }
