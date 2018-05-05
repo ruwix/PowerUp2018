@@ -27,18 +27,20 @@ public class CheesyJoystickDrive extends Command {
 	protected void execute() {
 		if (Drive.getInstance().isTilted()) {
 			switch (Drive.getInstance().getTiltDirection()) {
-			case BACKWARD:
+			case FORWARD:
 				Drive.getInstance().setOpenLoop(new DriveSignal(Constants.DRIVE_TILT_FORWARD_FIX_SPEED,
 						Constants.DRIVE_TILT_FORWARD_FIX_SPEED));
 				break;
-			case FORWARD:
+			case BACKWARD:
 				Drive.getInstance().setOpenLoop(new DriveSignal(Constants.DRIVE_TILT_BACKWARD_FIX_SPEED,
 						Constants.DRIVE_TILT_BACKWARD_FIX_SPEED));
 				break;
 			default:
 			}
+
 			return;
 		}
+
 		double power = this.joystick.getRawAxis(1) * this.multiplier;
 		power = (Math.abs(power) < Constants.JOYSTICK_POWER_DEADBAND) ? 0 : power;
 		power = Math.pow(power, Constants.JOYSTICK_POWER_POWER);
