@@ -59,11 +59,12 @@ public class Arm extends Subsystem implements LoopingSubsystem {
 	}
 
 	public static enum ArmPosition {
-		STOWED(Constants.ARM_STOWED_DEGREES), // Move to stowed height
 		INTAKE(Constants.ARM_INTAKE_DEGREES), // Move to intake height
+		STOWED(Constants.ARM_STOWED_DEGREES), // Move to stowed height
+		TEST(Constants.ARM_TEST_DEGREES),
 		SWITCH(Constants.ARM_SWITCH_DEGREES), // Move to switch height
 		SCALE(Constants.ARM_SCALE_DEGREES); // Move to scale height
-		
+
 		private double angle;
 		
 		private ArmPosition(double angle) {
