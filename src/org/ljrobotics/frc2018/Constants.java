@@ -78,11 +78,11 @@ public class Constants extends ConstantsBase {
 	public static int DRIVE_MAX_CURRENT_TIME = 500;
 
 	// Dealing with robot tilt
-	public static double DRIVE_TILT_TRESHOLD_FORWARD = 136;
-	public static double DRIVE_TILT_TRESHOLD_BACKWARD = 44;
-	public static double DRIVE_TILT_TIME_THRESHOLD = 0.3;
-	public static double DRIVE_TILT_FORWARD_FIX_SPEED = 1;
-	public static double DRIVE_TILT_BACKWARD_FIX_SPEED = -1;
+	public static double DRIVE_TILT_TRESHOLD_FORWARD = 100;
+	public static double DRIVE_TILT_TRESHOLD_BACKWARD = 80;
+	public static double DRIVE_TILT_TIME_THRESHOLD = 250;
+	public static double DRIVE_TILT_FORWARD_FIX_SPEED = -0.5;
+	public static double DRIVE_TILT_BACKWARD_FIX_SPEED = 0.5;
 
 	// -----------------------------------------------------------------------------------------------
 	// Intake
@@ -178,8 +178,9 @@ public class Constants extends ConstantsBase {
 	public static double ARM_Kd = 0; // 0.00009
 	public static double ARM_Kf = 0;
 
-	public static double ARM_STOWED_DEGREES = 45;
 	public static double ARM_INTAKE_DEGREES = 15;
+	public static double ARM_TEST_DEGREES = 30;
+	public static double ARM_STOWED_DEGREES = 45;
 	public static double ARM_SWITCH_DEGREES = 75;
 	public static double ARM_SCALE_DEGREES = 170;
 
