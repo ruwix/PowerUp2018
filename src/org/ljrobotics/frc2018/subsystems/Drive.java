@@ -477,8 +477,9 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		SmartDashboard.putNumber("Current", this.leftMaster.getOutputCurrent());
 
 		SmartDashboard.putNumber("Gyro Angle", this.getGyroAngle().getDegrees());
-		SmartDashboard.putBoolean("X Tilted", isTilted());
-		SmartDashboard.putNumber("X Angle", accel.getPitch());
+		SmartDashboard.putBoolean("Is Tilted", isTilted());
+		SmartDashboard.putNumber("Accel Pitch", accel.getPitch());
+		SmartDashboard.putNumber("Rotation Speed", getRotationSpeed());
 
 	}
 
@@ -498,10 +499,8 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	@Override
 	protected void initDefaultCommand() {
 		if (Constants.USE_TANK_DRIVE) {
-			System.out.println("NOT TANKING");
 			this.setDefaultCommand(new TankJoystickDrive());
 		} else {
-			System.out.println("TANKING");
 			this.setDefaultCommand(new CheesyJoystickDrive());
 		}
 	}
@@ -532,8 +531,7 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	}
 
 	public boolean isTilted() {
-		boolean isTilted = accel.getPitch() > Constants.DRIVE_TILT_TRESHOLD_FORWARD
-				|| accel.getPitch() < Constants.DRIVE_TILT_TRESHOLD_BACKWARD;
+		boolean isTilted = getTiltDirection() != TiltDirection.NEUTRAL;
 		return this.tiltStatus.update(isTilted, Constants.DRIVE_TILT_TIME_THRESHOLD);
 	}
 
@@ -545,4 +543,10 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		}
 		return TiltDirection.NEUTRAL;
 	}
+
+	public double getRotationSpeed() {
+		double speed = getLeftVelocityInchesPerSec() - getRightVelocityInchesPerSec();
+		return speed;
+	}
+
 }
