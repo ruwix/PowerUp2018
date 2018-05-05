@@ -66,12 +66,14 @@ public class OI {
 		JoystickButton button2 = new JoystickButton(this.stick2, 1);
 		JoystickButton button3 = new JoystickButton(this.stick2, 3);
 		JoystickButton button4 = new JoystickButton(this.stick2, 4);
-		
+		JoystickButton button9 = new JoystickButton(this.stick2, 9);
+
 
 		button1.whenPressed(new ArmSetpoint(Arm.ArmPosition.STOWED));
 		button2.whenPressed(new ArmSetpoint(Arm.ArmPosition.INTAKE));
 		button3.whenPressed(new ArmSetpoint(Arm.ArmPosition.SWITCH));
 		button4.whenPressed(new ArmSetpoint(Arm.ArmPosition.SCALE));
+		button9.whenPressed(new ArmSetpoint(Arm.ArmPosition.TEST));
 //		button2.whenPressed(new InstantCommand() {
 //			@Override
 //			public void execute() {
