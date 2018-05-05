@@ -3,6 +3,7 @@ package org.ljrobotics.frc2018.subsystems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,25 +17,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ljrobotics.frc2018.Constants;
 import org.ljrobotics.frc2018.state.RobotState;
+import org.ljrobotics.frc2018.subsystems.Drive.TiltDirection;
 import org.ljrobotics.lib.util.DriveSignal;
+import org.ljrobotics.lib.util.DummyFPGATimer;
 import org.ljrobotics.lib.util.DummyReporter;
 import org.ljrobotics.lib.util.InterpolatingDouble;
 import org.ljrobotics.lib.util.control.Path;
 import org.ljrobotics.lib.util.control.PathBuilder;
 import org.ljrobotics.lib.util.control.PathBuilder.Waypoint;
 import org.ljrobotics.lib.util.control.SynchronousPIDF;
+import org.ljrobotics.lib.util.drivers.LazyAccelerometer;
 import org.ljrobotics.lib.util.math.RigidTransform2d;
 import org.ljrobotics.lib.util.math.Rotation2d;
 import org.ljrobotics.lib.util.math.Translation2d;
 import org.ljrobotics.lib.util.math.Twist2d;
 import org.mockito.ArgumentCaptor;
-import static org.mockito.Mockito.eq;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.HLUsageReporting;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class DriveTest {
@@ -47,7 +51,9 @@ public class DriveTest {
 
 	private RobotState robotState;
 	private Gyro gyro;
-	
+	private LazyAccelerometer accel;
+	private DummyFPGATimer timer;
+
 	static {
 		// prevents exception during test
 		HLUsageReporting.SetImplementation(new DummyReporter());
@@ -55,6 +61,9 @@ public class DriveTest {
 
 	@Before
 	public void before() {
+		this.timer = new DummyFPGATimer();
+		Timer.SetImplementation(this.timer);
+
 		frontLeft = mock(TalonSRX.class);
 		frontRight = mock(TalonSRX.class);
 		backLeft = mock(TalonSRX.class);
@@ -62,8 +71,8 @@ public class DriveTest {
 
 		robotState = mock(RobotState.class);
 		gyro = mock(Gyro.class);
-
-		drive = new Drive(frontLeft, frontRight, backLeft, backRight, robotState, gyro);
+		accel = mock(LazyAccelerometer.class);
+		drive = new Drive(frontLeft, frontRight, backLeft, backRight, robotState, gyro, accel);
 	}
 
 	@Test
@@ -119,14 +128,14 @@ public class DriveTest {
 		drive.setOpenLoop(new DriveSignal(-10, -5));
 		verifyTalons(ControlMode.PercentOutput, -1, -1);
 	}
-	
+
 	@Test
 	public void setOpenLoopWithSpeedLimitedToHalfSetsToHalf() {
 		drive.setSpeedLimit(0.5);
 		drive.setOpenLoop(new DriveSignal(1, 1));
 		verifyTalons(ControlMode.PercentOutput, 0.5, 0.5);
 	}
-	
+
 	@Test
 	public void setOpenLoopWithSpeedLimitedToHalfSetsToQuarter() {
 		drive.setSpeedLimit(0.5);
@@ -197,35 +206,81 @@ public class DriveTest {
 		drive.updatePathFollower(3);
 		assertTrue(drive.isDoneWithPath());
 	}
-	
+
 	@Test
 	public void getGyroAngleReturnsRotation2dOfGyroAngle() {
 		when(this.gyro.getAngle()).thenReturn(90D);
-		Rotation2d expected = Rotation2d.fromDegrees(90*Constants.GYRO_MODIFIER);
+		Rotation2d expected = Rotation2d.fromDegrees(90 * Constants.GYRO_MODIFIER);
 		assertEquals(expected, this.drive.getGyroAngle());
 	}
-	
+
 	@Test
 	public void getLeftVelocityInInchesPerSecondReturnsVelocity() {
 		Constants.DRIVE_WHEEL_DIAMETER_INCHES = 1;
 		Constants.DRIVE_ENCODER_TICKS_PER_ROTATION_LEFT = Constants.DRIVE_ENCODER_TICKS_PER_ROTATION_RIGHT = 200;
 		when(this.frontLeft.getSelectedSensorVelocity(0)).thenReturn(200);
-		assertEquals(10*Math.PI, this.drive.getLeftVelocityInchesPerSec(), 0.00001);
+		assertEquals(10 * Math.PI, this.drive.getLeftVelocityInchesPerSec(), 0.00001);
 	}
-	
+
 	@Test
 	public void turnUpdatesCorrect() {
 		this.drive.setTurnAngle(90D);
 		SynchronousPIDF pid = this.drive.getSpeedPID();
 		assertTrue(pid.getSetpoint() == 90D);
 	}
-	
+
 	@Test
 	public void getRightVelocityInInchesPerSecondReturnsVelocity() {
 		Constants.DRIVE_WHEEL_DIAMETER_INCHES = 1;
 		Constants.DRIVE_ENCODER_TICKS_PER_ROTATION_LEFT = Constants.DRIVE_ENCODER_TICKS_PER_ROTATION_RIGHT = 200;
 		when(this.frontRight.getSelectedSensorVelocity(0)).thenReturn(200);
-		assertEquals(10*Math.PI, this.drive.getRightVelocityInchesPerSec(), 0.00001);
+		assertEquals(10 * Math.PI, this.drive.getRightVelocityInchesPerSec(), 0.00001);
+	}
+
+	@Test
+	public void getTiltDirectionTimeElapsedAndOverAngleIsForward() {
+		when(this.accel.getPitch()).thenReturn(Constants.DRIVE_TILT_TRESHOLD_FORWARD + 1);
+		drive.isTilted();
+		timer.setFPGATimestamp(Constants.DRIVE_TILT_TIME_THRESHOLD + 1);
+		assertTrue(drive.getTiltDirection() == TiltDirection.FORWARD);
+		assertTrue(drive.isTilted());
+	}
+
+	@Test
+	public void getTiltDirectionOverAngleIsForward() {
+		when(this.accel.getPitch()).thenReturn(Constants.DRIVE_TILT_TRESHOLD_FORWARD + 1);
+		drive.isTilted();
+		timer.setFPGATimestamp(Constants.DRIVE_TILT_TIME_THRESHOLD - 1);
+		assertTrue(drive.getTiltDirection() == TiltDirection.FORWARD);
+		assertTrue(!drive.isTilted());
+	}
+
+	@Test
+	public void getTiltDirectionTimeElapsedAndOverAngleIsBackward() {
+		when(this.accel.getPitch()).thenReturn(Constants.DRIVE_TILT_TRESHOLD_BACKWARD - 1);
+		drive.isTilted();
+		timer.setFPGATimestamp(Constants.DRIVE_TILT_TIME_THRESHOLD + 1);
+		assertTrue(drive.getTiltDirection() == TiltDirection.BACKWARD);
+		assertTrue(drive.isTilted());
+	}
+
+	@Test
+	public void getTiltDirectionOverAngleIsBackward() {
+		when(this.accel.getPitch()).thenReturn(Constants.DRIVE_TILT_TRESHOLD_BACKWARD - 1);
+		drive.isTilted();
+		timer.setFPGATimestamp(Constants.DRIVE_TILT_TIME_THRESHOLD - 1);
+		assertTrue(drive.getTiltDirection() == TiltDirection.BACKWARD);
+		assertTrue(!drive.isTilted());
+	}
+
+	@Test
+	public void getTiltDirectionNeutralAngleIsNeutral() {
+		when(this.accel.getPitch())
+				.thenReturn((Constants.DRIVE_TILT_TRESHOLD_BACKWARD + Constants.DRIVE_TILT_TRESHOLD_FORWARD) / 2);
+		drive.isTilted();
+		timer.setFPGATimestamp(Constants.DRIVE_TILT_TIME_THRESHOLD + 1);
+		assertTrue(drive.getTiltDirection() == TiltDirection.NEUTRAL);
+		assertTrue(!drive.isTilted());
 	}
 
 	private void verifyTalons(ControlMode mode, double frontLeft, double frontRight) {
