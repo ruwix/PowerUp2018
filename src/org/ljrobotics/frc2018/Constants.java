@@ -80,9 +80,9 @@ public class Constants extends ConstantsBase {
 	// Dealing with robot tilt
 	public static double DRIVE_TILT_TRESHOLD_FORWARD = 100;
 	public static double DRIVE_TILT_TRESHOLD_BACKWARD = 80;
-	public static double DRIVE_TILT_TIME_THRESHOLD = 250;
-	public static double DRIVE_TILT_FORWARD_FIX_SPEED = -0.5;
-	public static double DRIVE_TILT_BACKWARD_FIX_SPEED = 0.5;
+	public static double DRIVE_TILT_TIME_THRESHOLD = 50;
+	public static double DRIVE_TILT_FORWARD_FIX_SPEED = -0.75;
+	public static double DRIVE_TILT_BACKWARD_FIX_SPEED = 0.75;
 
 	// -----------------------------------------------------------------------------------------------
 	// Intake
