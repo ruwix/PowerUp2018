@@ -16,7 +16,7 @@ public class CheesyJoystickDrive extends Command {
 
 	public CheesyJoystickDrive() {
 		this.requires(Drive.getInstance());
-		this.multiplier = -1;
+		this.multiplier = -0.8;
 		this.joystick = OI.getInstance().stick;
 	}
 
