@@ -180,9 +180,8 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 
 		CANTalonFactory.updatePermanentSlaveTalon(this.rightSlave, this.rightMaster.getDeviceID());
 		rightMaster.getStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5);
-		rightSlave.setInverted(true);
-		leftMaster.setInverted(true);
-		rightMaster.setInverted(true);
+
+		setInverted(true);
 
 		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
 		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
@@ -290,8 +289,8 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	private void updateTurn(double timestamp) {
 		double dt = timestamp - this.lastTimeStamp;
 		this.lastTimeStamp = timestamp;
-		double currentAngle = LazyGyroscope.getInstance().getAngle();
-		double speed = speedPID.calculate(currentAngle, dt);
+		double currentAngle = this.getGyroAngle().getDegrees();
+		double speed = -speedPID.calculate(currentAngle, dt);
 
 		leftMaster.set(ControlMode.PercentOutput, speed);
 		rightMaster.set(ControlMode.PercentOutput, -speed);
@@ -308,6 +307,7 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 		// boolean lessThanAngle = Math.abs(speedPID.getSetpoint() -
 		// this.getGyroAngle().getDegrees()) <= Constants.TURN_DEGREE_TOLERANCE;
 		boolean toReturn = lessThanSpeed && this.hasUpdatedPID;
+		SmartDashboard.putNumber("speed pid error", speedPID.getError());
 		System.out.println("Turning with error " + speedPID.getError());
 		return (toReturn);
 	}
@@ -547,6 +547,12 @@ public class Drive extends Subsystem implements LoopingSubsystem {
 	public double getRotationSpeed() {
 		double speed = getLeftVelocityInchesPerSec() - getRightVelocityInchesPerSec();
 		return speed;
+	}
+
+	public void setInverted(boolean invert) {
+		rightSlave.setInverted(invert);
+		leftMaster.setInverted(invert);
+		rightMaster.setInverted(invert);
 	}
 
 }
