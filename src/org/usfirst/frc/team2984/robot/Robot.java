@@ -6,8 +6,10 @@ import org.ljrobotics.frc2018.OI;
 import org.ljrobotics.frc2018.SubsystemManager;
 import org.ljrobotics.frc2018.commands.auto.LeftScaleCommand;
 import org.ljrobotics.frc2018.commands.auto.RightSwitchCommand;
+import org.ljrobotics.frc2018.commands.auto.SwitchScaleCommand;
 import org.ljrobotics.frc2018.loops.Looper;
 import org.ljrobotics.frc2018.loops.RobotStateEstimator;
+import org.ljrobotics.frc2018.paths.RightRightSwitchRightScale;
 import org.ljrobotics.frc2018.state.RobotState;
 import org.ljrobotics.frc2018.subsystems.Arm;
 import org.ljrobotics.frc2018.subsystems.AutoSelectorSwitch;
@@ -141,7 +143,9 @@ public class Robot extends IterativeRobot {
 
 			this.looper.start();
 
-			Command command = AutoSelectorSwitch.getInstance().getAutoCommand();
+//			Command command = AutoSelectorSwitch.getInstance().getAutoCommand();
+			Command command = new SwitchScaleCommand(new RightRightSwitchRightScale());
+
 			Scheduler.getInstance().add(command);
 
 		} catch (Throwable throwable) {
