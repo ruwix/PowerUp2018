@@ -36,6 +36,11 @@ public class CenterLeftScaleFast implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 	// WAYPOINT_DATA: [{"position":{"x":20,"y":155},"speed":0,"radius":0,"comment":""},{"position":{"x":50,"y":155},"speed":20,"radius":20,"comment":""},{"position":{"x":80,"y":110},"speed":40,"radius":0,"comment":""},{"position":{"x":110,"y":65},"speed":60,"radius":40,"comment":""},{"position":{"x":180,"y":40},"speed":60,"radius":40,"comment":""},{"position":{"x":260,"y":40},"speed":60,"radius":0,"comment":""},{"position":{"x":300,"y":40},"speed":60,"radius":0,"comment":""},{"position":{"x":325,"y":40},"speed":30,"radius":20,"comment":""},{"position":{"x":325,"y":60},"speed":20,"radius":0,"comment":""}]
 	// IS_REVERSED: false
 	// FILE_NAME: ShortRightSwitch

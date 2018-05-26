@@ -35,4 +35,9 @@ public class LeftLeftScale implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 }

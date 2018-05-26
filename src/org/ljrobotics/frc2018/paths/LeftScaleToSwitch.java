@@ -31,6 +31,11 @@ public class LeftScaleToSwitch implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 	// WAYPOINT_DATA: [{"position":{"x":325,"y":58},"speed":60,"radius":0,"comment":""},{"position":{"x":265,"y":58},"speed":60,"radius":20,"comment":""},{"position":{"x":227,"y":76},"speed":60,"radius":0,"comment":""}]
 	// IS_REVERSED: false
 	// FILE_NAME: UntitledPath

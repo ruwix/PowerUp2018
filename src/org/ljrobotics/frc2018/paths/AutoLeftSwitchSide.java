@@ -36,4 +36,9 @@ public class AutoLeftSwitchSide implements PathContainer {
 	// WAYPOINT_DATA: [{"position":{"x":0,"y":155},"speed":0,"radius":0,"comment":""},{"position":{"x":40,"y":155},"speed":60,"radius":40,"comment":""},{"position":{"x":80,"y":305},"speed":60,"radius":40,"comment":""},{"position":{"x":160,"y":295},"speed":60,"radius":40,"comment":""},{"position":{"x":170,"y":245},"speed":60,"radius":0,"comment":""}]
 	// IS_REVERSED: false
 	// FILE_NAME: AutoLeftSwitch
+
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 }

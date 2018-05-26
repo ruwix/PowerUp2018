@@ -33,4 +33,9 @@ public class RightLeftSwitch implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 }

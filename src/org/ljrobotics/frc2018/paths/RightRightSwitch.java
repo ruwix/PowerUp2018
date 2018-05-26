@@ -20,7 +20,6 @@ public class RightRightSwitch implements PathContainer {
         sWaypoints.add(new Waypoint(80,120,10,40));
         sWaypoints.add(new Waypoint(100,120,0,30));
         sWaypoints.add(new Waypoint(113,120,0,30));
-
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
@@ -31,6 +30,11 @@ public class RightRightSwitch implements PathContainer {
 
     @Override
     public boolean isReversed() {
+        return false;
+    }
+    
+    @Override
+    public boolean isInverted() {
         return false;
     }
 }

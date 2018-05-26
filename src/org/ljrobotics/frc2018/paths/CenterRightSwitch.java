@@ -33,6 +33,11 @@ public class CenterRightSwitch implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 	// WAYPOINT_DATA: [{"position":{"x":0,"y":155},"speed":60,"radius":0,"comment":""},{"position":{"x":40,"y":155},"speed":60,"radius":30,"comment":""},{"position":{"x":80,"y":110},"speed":60,"radius":30,"comment":""},{"position":{"x":140,"y":110},"speed":60,"radius":0,"comment":""}]
 	// IS_REVERSED: false
 	// FILE_NAME: ShortRightSwitch

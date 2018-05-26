@@ -45,5 +45,10 @@ public class TestPath implements PathContainer {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 
 }

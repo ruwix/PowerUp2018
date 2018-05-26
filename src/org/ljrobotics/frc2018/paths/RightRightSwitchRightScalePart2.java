@@ -10,23 +10,22 @@ import org.ljrobotics.lib.util.math.RigidTransform2d;
 import org.ljrobotics.lib.util.math.Rotation2d;
 import org.ljrobotics.lib.util.math.Translation2d;
 
-public class LeftLeftSwitch implements PathContainer {
+public class RightRightSwitchRightScalePart2 implements PathContainer {
 
     @Override
     public Path buildPath() {
         ArrayList<Waypoint> sWaypoints = new ArrayList<Waypoint>();
-        sWaypoints.add(new Waypoint(20,240,0,0));
-        sWaypoints.add(new Waypoint(35,240,10,40));
-        sWaypoints.add(new Waypoint(80,220,10,40));
-        sWaypoints.add(new Waypoint(100,220,0,30));
-        sWaypoints.add(new Waypoint(113,220,0,30));
+        sWaypoints.add(new Waypoint(325,50,0,60));
+        sWaypoints.add(new Waypoint(250,70,10,60));
+        sWaypoints.add(new Waypoint(190,120,0,60));
+
 
         return PathBuilder.buildPathFromWaypoints(sWaypoints);
     }
 
     @Override
     public RigidTransform2d getStartPose() {
-        return new RigidTransform2d(new Translation2d(20, 240), Rotation2d.fromDegrees(0.0));
+        return new RigidTransform2d(new Translation2d(325, 50), Rotation2d.fromDegrees(-210));
     }
 
     @Override
@@ -38,4 +37,5 @@ public class LeftLeftSwitch implements PathContainer {
 	public boolean isInverted() {
 		return false;
 	}
+	
 }

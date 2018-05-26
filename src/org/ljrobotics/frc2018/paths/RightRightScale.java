@@ -32,4 +32,9 @@ public class RightRightScale implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 }

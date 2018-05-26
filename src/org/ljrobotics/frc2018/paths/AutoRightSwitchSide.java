@@ -33,6 +33,11 @@ public class AutoRightSwitchSide implements PathContainer {
     public boolean isReversed() {
         return false;
     }
+    
+	@Override
+	public boolean isInverted() {
+		return false;
+	}
 	// WAYPOINT_DATA: [{"position":{"x":0,"y":155},"speed":0,"radius":0,"comment":""},{"position":{"x":40,"y":155},"speed":60,"radius":40,"comment":""},{"position":{"x":80,"y":20},"speed":60,"radius":40,"comment":""},{"position":{"x":160,"y":30},"speed":60,"radius":40,"comment":""},{"position":{"x":170,"y":80},"speed":60,"radius":0,"comment":""}]
 	// IS_REVERSED: false
 	// FILE_NAME: AutoRightSwitch
